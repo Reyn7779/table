@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        th[contenteditable="true"], td[contenteditable="true"] {
+            background-color: #f7f7f7; /* Light grey background for editable cells */
+            cursor: text; /* Text cursor on hover */
+            /* Add any other styles you wish */
+        }
+        td[contented+table="true"] {
+            background-color: #f7f7f7; /* Light grey background */
+            cursor: text; /* Text cursor on hover */
+            /* Add any other styles you wish */
+        }
+                td[contenteditable="true"] {
+            background-color: #f7f7f7; /* Light grey background */
+            cursor: text; /* Text cursor on hover */
+            /* Add any other styles you wish */
+        }
+                        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+        }
+
+
+
+        table, th, td {
+
+            border: 1px solid black;
+
+            width: 20px;
+
+            height: 50px;
+
+        }
+
+
+
+        th, td {
+
+            padding: 8px;
+
+            text-align: center;
+
+        }
+
+
+
+        th {
+
+            background-color: #f2f2f2;
+
+        }
+        .in {
+          
+          width: 488px;
+          height: 100px;
+          font-size: 100px;
+        }
+        
+        button {
+            
+           width: 450px;
+           height: 100px;
+           background-color: rgb(46, 203, 255);
+           border: 1px solid #000;
+           cursor: pointer;
+           
+        }
+        .selected {
+    background-color: #9fa8da; /* or any highlight color */
+}
+
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="export.js"></script>
+    <!-- Include the xlsx library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+<!-- Include the jsPDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="cell.js"></script>
+<script src="edit.js"></script>
+<script src="copy-code.js"></script>
+</head>
+<body>
+    <br><br><br>
+    <input type="number" id="addColumn" placeholder="columns" class="in">
+    <input type="number" id="addRow" placeholder="rows" class="in">
+    <input type="text" id="bulkEditValue" placeholder="cells" class="in">
+    <input type="text" id="bulkEditValue" placeholder="value for selected cells" class="in">
+    <br><br>
+    <button onclick="addColumnsAndRows()">Add Columns and Rows</button>
+    <button onclick="showTable()">View Output</button>
+    <button onclick="downloadTableAsPNG()">Download as PNG</button>
+    <button onclick="exportTable('csv')">Export to CSV</button><br><br>
+<button onclick="exportTable('excel')">Export to Excel</button>
+<button onclick="exportTable('pdf')">Export to PDF</button>
+<button id="bulkEditButton">Apply to Selected Cells</button><br><br>
+<button id="bulkEditButton">Apply to Selected Cells</button>
+<button id="copyOutputTableButton">Copy Output Table to Clipboard</button>
+
+    <br>
+
+    <table id="inputTable">
+        <thead><tr></tr></thead>
+        <tbody></tbody>
+    </table>
+    <br>
+    <table id="outputTable" style="display: none">
+        <thead><tr></tr></thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        function addColumnsAndRows() {
+            const addColumnValue = parseInt(document.getElementById("addColumn").value);
+            const addRowValue = parseInt(document.getElementById("addRow").value);
+            const inputTable = document.getElementById("inputTable");
+            
+            // Clear previous content
+            inputTable.innerHTML = "<thead><tr></tr></thead><tbody></tbody>";
+            
+            // Add editable columns to header
+            for (let i = 0; i < addColumnValue; i++) {
+                const headerCell = document.createElement("th");
+                headerCell.setAttribute("contenteditable", "true");
+                headerCell.textContent = "Column " + (i + 1);
+                inputTable.querySelector("thead tr").appendChild(headerCell);
+            }
+
+            // Add editable rows
+            for (let i = 0; i < addRowValue; i++) {
+                const newRow = document.createElement("tr");
+                for (let j = 0; j < addColumnValue; j++) {
+                    const cell = document.createElement("td");
+                    cell.setAttribute("contenteditable", "true");
+                    newRow.appendChild(cell);
+                }
+                inputTable.querySelector("tbody").appendChild(newRow);
+            }
+        }
+
+        function showTable() {
+            const inputTable = document.getElementById("inputTable").cloneNode(true);
+            const outputTable = document.getElementById("outputTable");
+            
+            // Remove the contenteditable attributes for the output table
+            const cells = inputTable.querySelectorAll('th, td');
+            cells.forEach(function(cell) {
+                cell.removeAttribute('contenteditable');
+            });
+
+            // Replace the output table with the new content
+            outputTable.innerHTML = "";
+            outputTable.appendChild(inputTable.querySelector("thead").cloneNode(true));
+            outputTable.appendChild(inputTable.querySelector("tbody").cloneNode(true));
+            outputTable.style.display = "table"; // Display the output table
+        }
+
+        function downloadTableAsPNG() {
+    html2canvas(document.getElementById("outputTable"), { scale: 1 }).then(canvas => {
+        // Create a new anchor tag
+        let a = document.createElement('a');
+        // Image's URL
+        a.href = canvas.toDataURL('image/png');
+        // Set the filename
+        a.download = 'output-table.png';
+        // Trigger the click event
+        a.click();
+    });
+}
+
+    </script>
+    
+</body>
+</html>
